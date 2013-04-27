@@ -17,3 +17,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+
+class MailServer(object):
+
+    def __init__(self, url, user, password):
+        pass
+
+    def send(self, mail):
+        pass
+
+
+class Mail(object):
+
+    def __init__(self, mail_to, mail_from, mail_subject, mail_body):
+        pass
+
+
+class Notifier(object):
+
+    def __init__(self):
+        pass
+
+    def send_notifications(self, commit_list):
+        pass

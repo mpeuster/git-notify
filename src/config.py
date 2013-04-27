@@ -17,34 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-
-import logging
-import repository
-
-
-def main():
-    logging.basicConfig(level=logging.DEBUG)
-
-    logging.info("GitNotify v.0.1")
-
-    repo_name = "Test"
-    repo_rmote_url = "git@github.com:mpeuster/test.git"
-
-    # TODO: Call the following lines for each repository
-    gr = repository.GitRepository(repo_name, repo_rmote_url)
-    gr.clone()
-    #gr.pull()
-    commit_list = gr.get_commits()
-    ch = repository.CommitHistory()
-    filtered_commit_list = ch.filter_commits_to_notify(commit_list)
-
-    if len(filtered_commit_list) > 0:
-        pass
-        # TODO: Call notifier here
-        #ch.add_notified_commits(filtered_commit_list)
-    else:
-        logging.info("No new commits. No notifications will be send.")
-
-
-if __name__ == '__main__':
-    main()
+# f = open("config.json","r")
+# data = json.load(f)
+# print data

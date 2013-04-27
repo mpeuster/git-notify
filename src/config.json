@@ -1,0 +1,15 @@
+{
+	"history_file": "history.dat",
+	"repo_base_path": "/tmp",
+	"smtp_server": "server",
+	"smtp_user": "username",
+	"smtp_password": "secret",
+
+	"repositories": [
+						{ 	
+							"name": "Test",
+							"url": "git@github.com:mpeuster/test.git",
+							"mail_addresses": ["test@test.de"]
+						}
+					] 
+}
