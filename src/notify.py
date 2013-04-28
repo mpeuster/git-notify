@@ -35,8 +35,9 @@ class Mail(object):
 
 class Notifier(object):
 
-    def __init__(self):
+    def __init__(self, config):
         pass
 
     def send_notifications(self, commit_list):
         pass
+        return True

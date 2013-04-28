@@ -20,6 +20,7 @@
 import argparse
 import config
 import logging
+import notify
 import repository
 
 
@@ -29,20 +30,25 @@ def init():
                         action="store_true", help="Enable DEBUG logging level.")
     parser.add_argument("-c", "--config", dest="config_file", default="config.json",
                         type=str, help="Path to the configuration file that is used.")
+    parser.add_argument("-l", "--logfile", dest="log_file", default=None,
+                        type=str, help="Path to the logfile file that is used.")
     params = parser.parse_args()
 
     if params.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
+    # TODO: Enable log_file logging.
     return params
 
 
 def main(params):
-    logging.info("GitNotify v.0.1")
+    logging.info("GitNotify - Push/Commit notification script")
+    logging.info("(c) 2013 by Manuel Peuster <manuel@peuster.de>")
 
     c = config.Config.load_config(path=params.config_file)
     if c is None:
+        logging.error("No configuration file loaded. Exiting.")
         exit(1)
 
     repo_name = c["repositories"][0]["name"]
@@ -57,11 +63,12 @@ def main(params):
     filtered_commit_list = ch.filter_commits_to_notify(commit_list)
 
     if len(filtered_commit_list) > 0:
-        pass
-        # TODO: Call notifier here
-        #ch.add_notified_commits(filtered_commit_list)
+        n = notify.Notifier(c)
+        if n.send_notifications(filtered_commit_list):
+            # ch.add_notified_commits(filtered_commit_list)
+            logging.info("Notifications sent: %i", len(filtered_commit_list))
     else:
-        logging.info("No new commits. No notifications will be send.")
+        logging.info("No new commits. No notifications are generated.")
 
 
 if __name__ == '__main__':
