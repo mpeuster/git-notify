@@ -17,6 +17,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# f = open("config.json","r")
-# data = json.load(f)
-# print data
+
+import json
+import logging
+
+
+class Config(object):
+
+    @staticmethod
+    def load_config(path="config.json"):
+        try:
+            f = open(path, "r")
+            config = json.load(f)
+            f.close()
+            logging.info("Configuration file loaded: %s", path)
+            return config
+        except:
+            logging.exception("Can not open configuration file: %s",
+                              path)
+            return None

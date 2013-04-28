@@ -17,18 +17,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-
+import argparse
+import config
 import logging
 import repository
 
 
-def main():
-    logging.basicConfig(level=logging.DEBUG)
+def init():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", dest="verbose",
+                        action="store_true", help="Enable DEBUG logging level.")
+    parser.add_argument("-c", "--config", dest="config_file", default="config.json",
+                        type=str, help="Path to the configuration file that is used.")
+    params = parser.parse_args()
 
+    if params.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    return params
+
+
+def main(params):
     logging.info("GitNotify v.0.1")
 
-    repo_name = "Test"
-    repo_rmote_url = "git@github.com:mpeuster/test.git"
+    c = config.Config.load_config(path=params.config_file)
+    if c is None:
+        exit(1)
+
+    repo_name = c["repositories"][0]["name"]
+    repo_rmote_url = c["repositories"][0]["url"]
 
     # TODO: Call the following lines for each repository
     gr = repository.GitRepository(repo_name, repo_rmote_url)
@@ -47,4 +65,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    params = init()
+    main(params)
