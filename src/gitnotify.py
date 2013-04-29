@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+# TODO: Add doc comments
 
 import argparse
 import config
@@ -51,25 +52,22 @@ def main(params):
         logging.error("No configuration file loaded. Exiting.")
         exit(1)
 
-    repo_config = c["repositories"][0]
-    repo_name = repo_config["name"]
-    repo_rmote_url = repo_config["url"]
+    for repo_config in c["repositories"]:
+        logging.info("Checking repository: %s (at: %s)", repo_config["name"], repo_config["url"])
+        gr = repository.GitRepository(repo_config["name"], repo_config["url"])
+        gr.clone()
+        gr.pull()
+        commit_list = gr.get_commits()
+        ch = repository.CommitHistory()
+        filtered_commit_list = ch.filter_commits_to_notify(commit_list)
 
-    # TODO: Call the following lines for each repository
-    gr = repository.GitRepository(repo_name, repo_rmote_url)
-    gr.clone()
-    #gr.pull()
-    commit_list = gr.get_commits()
-    ch = repository.CommitHistory()
-    filtered_commit_list = ch.filter_commits_to_notify(commit_list)
-
-    if len(filtered_commit_list) > 0:
-        n = notify.Notifier(c, repo_config)
-        if n.send_notifications(filtered_commit_list):
-            # ch.add_notified_commits(filtered_commit_list)
-            logging.info("Notifications sent: %i", len(filtered_commit_list))
-    else:
-        logging.info("No new commits. No notifications are generated.")
+        if len(filtered_commit_list) > 0:
+            n = notify.Notifier(c, repo_config)
+            if n.send_notifications(filtered_commit_list):
+                ch.add_notified_commits(filtered_commit_list)
+                logging.info("Notifications sent: %i", len(filtered_commit_list))
+        else:
+            logging.info("No new commits. No notifications are generated.")
 
 
 if __name__ == '__main__':

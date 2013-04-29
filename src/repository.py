@@ -58,7 +58,8 @@ class GitRepository(object):
             logging.exception("Can not pull from repository: %s",
                               self.repo_name)
 
-    def get_commits(self, branch="master", limit=100):
+    def get_commits(self, branch="master", limit=20):
+        # TODO: Add branch and limit to configuration
         r = self.__open_repository()
         result = []
         for c in r.iter_commits(branch, max_count=limit):
