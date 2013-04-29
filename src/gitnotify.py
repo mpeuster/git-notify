@@ -51,8 +51,9 @@ def main(params):
         logging.error("No configuration file loaded. Exiting.")
         exit(1)
 
-    repo_name = c["repositories"][0]["name"]
-    repo_rmote_url = c["repositories"][0]["url"]
+    repo_config = c["repositories"][0]
+    repo_name = repo_config["name"]
+    repo_rmote_url = repo_config["url"]
 
     # TODO: Call the following lines for each repository
     gr = repository.GitRepository(repo_name, repo_rmote_url)
@@ -63,7 +64,7 @@ def main(params):
     filtered_commit_list = ch.filter_commits_to_notify(commit_list)
 
     if len(filtered_commit_list) > 0:
-        n = notify.Notifier(c)
+        n = notify.Notifier(c, repo_config)
         if n.send_notifications(filtered_commit_list):
             # ch.add_notified_commits(filtered_commit_list)
             logging.info("Notifications sent: %i", len(filtered_commit_list))

@@ -18,26 +18,78 @@
 """
 
 
+import datetime
+import logging
+import smtplib
+
+
 class MailServer(object):
 
-    def __init__(self, url, user, password):
-        pass
+    def __init__(self, url, port, user, password):
+        try:
+            self.smtp = smtplib.SMTP(url, port=int(port))
+            self.smtp.login(user, password)
+            logging.info("Connection to SMTP server established: %s", url)
+        except:
+            logging.exception("Error while connecting to SMTP server.")
+            self.smtp = None
 
     def send(self, mail):
-        pass
+        if self.smtp is None:
+            return False
+        try:
+            self.smtp.sendmail(mail.mail_from, mail.mail_to, str(mail))
+        except:
+            logging.exception("Error while sending mail.")
+            return False
+        return True
+
+    def quit(self):
+        self.smtp.quit()
 
 
 class Mail(object):
 
     def __init__(self, mail_to, mail_from, mail_subject, mail_body):
-        pass
+        self.mail_to = mail_to
+        self.mail_from = mail_from
+        self.mail_subject = mail_subject
+        self.mail_body = mail_body
+        self.mail_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    def __repr__(self):
+        return "From: %s\nTo: %s\nSubject: %s\nDate: %s\n\n%s" \
+            % (self.mail_from, self.mail_to, self.mail_subject, self.mail_date, self.mail_body)
+
+    @staticmethod
+    def generate(commit, repo_config, mail_from):
+        subject = "GitNotify: %s committed to repository: %s" % (commit.committer, commit.repo_name)
+        body = "New commit to repository: %s\n\n SHA: %s\nAuthor: %s\nAuthoredDate: %s\nCommitter: %s\nCommitedDate: %s\n\nMessage:\n%s\n" \
+            % (commit.repo_name, commit.hexsha, commit.author, commit.authored_date, commit.committer, commit.committed_date, commit.message)
+
+        mails = []
+        for reciver in repo_config["mail_addresses"]:
+            mails.append(Mail(reciver, mail_from, subject, body))
+        return mails
 
 
 class Notifier(object):
 
-    def __init__(self, config):
-        pass
+    def __init__(self, config, repo_config):
+        self.config = config
+        self.repo_config = repo_config
 
     def send_notifications(self, commit_list):
-        pass
+        ms = MailServer(self.config["smtp_server"],
+                        self.config["smtp_port"],
+                        self.config["smtp_user"],
+                        self.config["smtp_password"])
+
+        for commit in commit_list:
+            mails = Mail.generate(commit, self.repo_config, self.config["mail_sender"])
+            for m in mails:
+                if not ms.send(m):
+                    return False
+
+        ms.quit()
         return True
