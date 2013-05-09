@@ -26,6 +26,10 @@ import repository
 
 
 def init():
+    '''
+    Initializes command line argument parser.
+    Sets up logging environment.
+    '''
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", dest="verbose",
                         action="store_true", help="Enable DEBUG logging level.")
@@ -44,6 +48,10 @@ def init():
 
 
 def main(params):
+    '''
+    Main program. Loads the configuration, pulls the repositories and
+    sends notification mails.
+    '''
     logging.info("GitNotify - Push/Commit notification script")
     logging.info("(c) 2013 by Manuel Peuster <manuel@peuster.de>")
 
@@ -66,6 +74,8 @@ def main(params):
             if n.send_notifications(filtered_commit_list):
                 ch.add_notified_commits(filtered_commit_list)
                 logging.info("Notifications sent: %i", len(filtered_commit_list))
+            else:
+                logging.error("Error while sending notifications.")
         else:
             logging.info("No new commits. No notifications are generated.")
 

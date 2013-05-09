@@ -24,8 +24,15 @@ import smtplib
 
 
 class MailServer(object):
+    '''
+    Represents an SMTP mail server.
+    '''
 
     def __init__(self, url, port, user, password):
+        '''
+        Creates a SMTP server connection. Using the
+        provided credentials.
+        '''
         try:
             self.smtp = smtplib.SMTP(url, port=int(port))
             self.smtp.login(user, password)
@@ -35,6 +42,9 @@ class MailServer(object):
             self.smtp = None
 
     def send(self, mail):
+        '''
+        Sends the provided mail object.
+        '''
         if self.smtp is None:
             return False
         try:
@@ -49,8 +59,15 @@ class MailServer(object):
 
 
 class Mail(object):
+    '''
+    Represents a mail.
+    '''
 
     def __init__(self, mail_to, mail_from, mail_subject, mail_body):
+        '''
+        Creates a new mail.
+        Gets sender, receiver, subject and content.
+        '''
         self.mail_to = mail_to
         self.mail_from = mail_from
         self.mail_subject = mail_subject
@@ -58,11 +75,17 @@ class Mail(object):
         self.mail_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
     def __repr__(self):
+        '''
+        Returns mail in nice format.
+        '''
         return "From: %s\nTo: %s\nSubject: %s\nDate: %s\n\n%s" \
             % (self.mail_from, self.mail_to, self.mail_subject, self.mail_date, self.mail_body)
 
     @staticmethod
     def generate(commit, repo_config, mail_from):
+        '''
+        Generates mail content from commit.
+        '''
         subject = "GitNotify: %s committed to repository: %s" % (commit.committer, commit.repo_name)
         body = "New commit to repository: %s\n\n SHA: %s\nAuthor: %s\nAuthoredDate: %s\nCommitter: %s\nCommitedDate: %s\n\nMessage:\n%s\n" \
             % (commit.repo_name, commit.hexsha, commit.author, commit.authored_date, commit.committer, commit.committed_date, commit.message)
@@ -74,12 +97,21 @@ class Mail(object):
 
 
 class Notifier(object):
+    '''
+    Notification controller.
+    '''
 
     def __init__(self, config, repo_config):
+        '''
+        Init.
+        '''
         self.config = config
         self.repo_config = repo_config
 
     def send_notifications(self, commit_list):
+        '''
+        Sends a notification for each commit in commmit_list.
+        '''
         ms = MailServer(self.config["smtp_server"],
                         self.config["smtp_port"],
                         self.config["smtp_user"],

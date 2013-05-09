@@ -24,13 +24,23 @@ import time
 
 
 class GitRepository(object):
+    '''
+    Represents a git repository.
+    Implements typical git functions like pull or clone.
+    '''
 
     def __init__(self, repo_name, repo_remote_url, repo_base_path="/tmp"):
+        '''
+        Init with remote address etc.
+        '''
         self.repo_name = repo_name
         self.repo_remote_url = repo_remote_url
         self.repo_base_path = repo_base_path
 
     def __open_repository(self):
+        '''
+        Returns a connection to the repository.
+        '''
         try:
             logging.debug("Open repository: %s", self.repo_name)
             return git.Repo(self.repo_base_path + "/" + self.repo_name)
@@ -38,6 +48,9 @@ class GitRepository(object):
             logging.exception("Can not open repository: %s", self.repo_name)
 
     def clone(self):
+        '''
+        Clones a remote repository to the local machine.
+        '''
         if not os.path.exists(self.repo_base_path + "/" + self.repo_name):
             try:
                 logging.info("Cloning repository: %s", self.repo_remote_url)
@@ -48,6 +61,9 @@ class GitRepository(object):
                                   self.repo_remote_url)
 
     def pull(self):
+        '''
+        Pulls latest version from a remote repository.
+        '''
         r = self.__open_repository()
         try:
             logging.info("Pull from repository: %s", self.repo_name)
@@ -59,6 +75,10 @@ class GitRepository(object):
                               self.repo_name)
 
     def get_commits(self, branch="master", limit=20):
+        '''
+        Returns a list of commits.
+        List length defined by limit.
+        '''
         # TODO: Add branch and limit to configuration
         r = self.__open_repository()
         result = []
@@ -68,8 +88,15 @@ class GitRepository(object):
 
 
 class GitCommit(object):
+    '''
+    Represents a single git commit.
+    Contains names, hashes, and commit message.
+    '''
 
     def __init__(self):
+        '''
+        Init.
+        '''
         self.repo_name = None
         self.hexsha = None
         self.author = None
@@ -79,6 +106,9 @@ class GitCommit(object):
         self.message = None
 
     def __repr__(self):
+        '''
+        Returns nice string version of commit.
+        '''
         return "Commit(%s:%s, %s, %s, %s, %s, %s)" % (self.repo_name,
                                                       self.hexsha,
                                                       self.author,
@@ -89,6 +119,10 @@ class GitCommit(object):
 
     @staticmethod
     def create(source, repo_name):
+        '''
+        Class function to create a new commit object from a result
+        of the git library.
+        '''
         c = GitCommit()
         c.repo_name = repo_name
         c.hexsha = source.hexsha
@@ -104,13 +138,22 @@ class GitCommit(object):
 
 
 class CommitHistory(object):
+    '''
+    Handles the already notified commits.
+    '''
 
     def __init__(self, path="history.dat"):
+        '''
+        Init.
+        '''
         self.commit_history = []
         self.path = path
         self.__load_from_file()
 
     def __load_from_file(self):
+        '''
+        Loads the commit history from a file.
+        '''
         try:
             logging.info("Loading commit history file: %s", self.path)
             f = open(self.path, "a+")
@@ -124,6 +167,10 @@ class CommitHistory(object):
                               self.path)
 
     def filter_commits_to_notify(self, commit_list):
+        '''
+        Removes all commits from commit list which are already in the 
+        commit history file.
+        '''
         logging.info("Filtering commit list for not yet notified commits")
         result = []
         for c in commit_list:
@@ -133,6 +180,9 @@ class CommitHistory(object):
         return result
 
     def add_notified_commits(self, commit_list):
+        '''
+        Add new commits to commit history file.
+        '''
         try:
             logging.info("Updating commit history file: %s", self.path)
             f = open(self.path, "a")

@@ -26,6 +26,10 @@ class Config(object):
 
     @staticmethod
     def load_config(path="config.json"):
+        '''
+        Loads the configuration file in JSON format.
+        Returns dict with all configuration values.
+        '''
         try:
             f = open(path, "r")
             config = json.load(f)
