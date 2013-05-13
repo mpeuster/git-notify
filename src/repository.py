@@ -79,7 +79,6 @@ class GitRepository(object):
         Returns a list of commits.
         List length defined by limit.
         '''
-        # TODO: Add branch and limit to configuration
         r = self.__open_repository()
         result = []
         for c in r.iter_commits(branch, max_count=limit):

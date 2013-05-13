@@ -16,7 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-# TODO: Add doc comments
 
 import argparse
 import config
@@ -36,14 +35,19 @@ def init():
     parser.add_argument("-c", "--config", dest="config_file", default="config.json",
                         type=str, help="Path to the configuration file that is used.")
     parser.add_argument("-l", "--logfile", dest="log_file", default=None,
-                        type=str, help="Path to the logfile file that is used.")
+                        type=str, help="Path to the log file that is used.")
     params = parser.parse_args()
 
     if params.verbose:
-        logging.basicConfig(level=logging.DEBUG)
+        if params.log_file is None:
+            logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)-8s] %(message)s")
+        else:
+            logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)-8s] %(message)s", filename=str(params.log_file))
     else:
-        logging.basicConfig(level=logging.INFO)
-    # TODO: Enable log_file logging.
+        if params.log_file is None:
+            logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)-8s] %(message)s")
+        else:
+            logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)-8s] %(message)s", filename=str(params.log_file))
     return params
 
 
@@ -65,7 +69,7 @@ def main(params):
         gr = repository.GitRepository(repo_config["name"], repo_config["url"])
         gr.clone()
         gr.pull()
-        commit_list = gr.get_commits()
+        commit_list = gr.get_commits(branch=repo_config["branch"], limit=repo_config["limit"])
         ch = repository.CommitHistory()
         filtered_commit_list = ch.filter_commits_to_notify(commit_list)
 

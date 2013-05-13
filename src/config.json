@@ -9,9 +9,11 @@
 
 	"repositories": [
 						{ 	
-							"name": "Test",
-							"url": "git@github.com:user/test.git",
-							"mail_addresses": ["test@test.de"]
+							"name": "git-notify",
+							"url": "git@github.com:mpeuster/git-notify.git",
+							"mail_addresses": ["test@test.de"],
+							"limit": 20,
+							"branch": "master"
 						}
 					] 
 }

@@ -36,3 +36,6 @@ nosetests.xml
 
 # Data
 *.dat
+
+# Files
+secret_config.json
